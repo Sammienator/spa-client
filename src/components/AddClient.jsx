@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"; // Import useEffect along with useState
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import AOS from "aos";
@@ -8,6 +8,8 @@ import { FaUserPlus } from "react-icons/fa";
 const AddClient = () => {
   const [formData, setFormData] = useState({ name: "", email: "", phone: "", areasOfConcern: "" });
   const navigate = useNavigate();
+
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:10000";
 
   useEffect(() => {
     AOS.init({ duration: 700 });
@@ -20,7 +22,7 @@ const AddClient = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:5000/api/clients", formData);
+      await axios.post(`${API_URL}/clients`, formData);
       alert("Client added successfully!");
       navigate("/appointments");
     } catch (error) {

@@ -11,10 +11,11 @@ const ClientHistory = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  // Define fetchClientHistory with useCallback to stabilize it
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:10000";
+
   const fetchClientHistory = useCallback(async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/appointments/client/${clientId}`);
+      const response = await axios.get(`${API_URL}/appointments/client/${clientId}`);
       setClientHistory(response.data);
       setLoading(false);
     } catch (error) {
@@ -22,12 +23,12 @@ const ClientHistory = () => {
       setError("Failed to load client history. Check server connection.");
       setLoading(false);
     }
-  }, [clientId]); // Dependency on clientId, as it changes with URL params
+  }, [clientId, API_URL]);
 
   useEffect(() => {
     AOS.init({ duration: 700 });
     fetchClientHistory();
-  }, [fetchClientHistory]); // Use fetchClientHistory as a dependency, now stable with useCallback
+  }, [fetchClientHistory]);
 
   const handleBack = () => {
     navigate("/appointments-list");
@@ -45,7 +46,7 @@ const ClientHistory = () => {
           <ul className="list-disc pl-5">
             {clientHistory.map((history) => (
               <li key={history._id} className="mb-2">
-                {new Date(history.startTime).toLocaleString()} - {history.treatment} ({history.duration} mins) - Status: {history.status}, Payment: {history.paymentStatus}
+                {new Date(history.startTime).toLocaleString()} - {history.treatment} ({history.duration} mins) - Status: {history.status || "N/A"}, Payment: {history.paymentStatus}
               </li>
             ))}
           </ul>

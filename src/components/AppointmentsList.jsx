@@ -8,21 +8,22 @@ import { useNavigate } from "react-router-dom";
 const AppointmentsList = () => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showFilters, setShowFilters] = useState(false); // Toggle for filters visibility
-  const [date, setDate] = useState(""); // Not used, but kept for consistency
-  const [paymentStatus, setPaymentStatus] = useState(""); // Filter by payment status (Paid, Unpaid, Pending)
-  const [clientName, setClientName] = useState(""); // Filter by client name
-  const [phoneNumber, setPhoneNumber] = useState(""); // Removed as per request
+  const [showFilters, setShowFilters] = useState(false);
+  const [date, setDate] = useState("");
+  const [paymentStatus, setPaymentStatus] = useState("");
+  const [clientName, setClientName] = useState("");
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:10000"; // Render backend
 
   const fetchAppointments = useCallback(async () => {
     try {
       const params = {};
-      if (clientName) params.clientName = clientName; // Filter by client name
-      if (paymentStatus) params.paymentStatus = paymentStatus; // Filter by payment status
+      if (clientName) params.clientName = clientName;
+      if (paymentStatus) params.paymentStatus = paymentStatus;
       console.log("Fetching appointments with params:", params);
-      const response = await axios.get("http://localhost:5000/api/appointments", { params });
+      const response = await axios.get(`${API_URL}/appointments`, { params });
       console.log("Appointments received:", response.data);
       setAppointments(response.data);
       setError(null);
@@ -32,7 +33,7 @@ const AppointmentsList = () => {
       setError("Failed to load appointments. Check server connection or filters.");
       setLoading(false);
     }
-  }, [clientName, paymentStatus]);
+  }, [clientName, paymentStatus, API_URL]);
 
   const handleDateChange = (e) => {
     setDate(e.target.value);
@@ -46,14 +47,10 @@ const AppointmentsList = () => {
     setClientName(e.target.value);
   };
 
-  const handlePhoneNumberChange = (e) => {
-    setPhoneNumber(e.target.value); // No longer used, but kept for consistency
-  };
-
   const handlePaymentUpdate = async (id, newPaymentStatus) => {
     try {
-      await axios.put(`http://localhost:5000/api/appointments/${id}`, { paymentStatus: newPaymentStatus });
-      fetchAppointments(); // Refresh the appointments list after update
+      await axios.put(`${API_URL}/appointments/${id}`, { paymentStatus: newPaymentStatus });
+      fetchAppointments();
     } catch (error) {
       alert("Failed to update payment status: " + error.response?.data?.message || error.message);
     }
@@ -62,10 +59,10 @@ const AppointmentsList = () => {
   const getRowColor = (paymentStatus, startTime) => {
     const apptDate = new Date(startTime);
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Reset time to compare only dates
+    today.setHours(0, 0, 0, 0);
 
     if (apptDate < today) {
-      return "bg-gray-100 hover:bg-gray-200"; // Past bookings in grey
+      return "bg-gray-100 hover:bg-gray-200";
     }
     switch (paymentStatus) {
       case "Paid":
@@ -83,7 +80,7 @@ const AppointmentsList = () => {
 
   const applyFilters = () => {
     fetchAppointments();
-    setShowFilters(false); // Hide filters after applying
+    setShowFilters(false);
   };
 
   useEffect(() => {
@@ -94,16 +91,12 @@ const AppointmentsList = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen text-black relative z-10">
       <h1 className="text-3xl font-bold mb-6 text-center font-belleza" data-aos="fade-down">Appointments List</h1>
-
-      {/* Show Filters Button */}
       <button
         onClick={toggleFilters}
         className="mb-6 px-6 py-2 bg-blue-500 text-black rounded-lg hover:bg-blue-700 transition duration-300 font-belleza"
       >
         {showFilters ? "Hide Filters" : "Show Filters"}
       </button>
-
-      {/* Filters (Hidden by default, shown when toggled) */}
       {showFilters && (
         <div className="w-full max-w-5xl mb-6 bg-white bg-opacity-90 p-6 rounded-lg shadow-lg font-belleza" data-aos="fade-up">
           <h2 className="text-xl font-semibold mb-4 text-black text-center">Filter Appointments</h2>
@@ -147,8 +140,6 @@ const AppointmentsList = () => {
           </button>
         </div>
       )}
-
-      {/* Appointments Table */}
       <div className="w-full max-w-5xl sm:max-w-6xl md:max-w-7xl bg-white bg-opacity-90 p-6 rounded-lg shadow-lg font-belleza" data-aos="fade-up">
         {error ? (
           <p className="text-black text-center">{error}</p>
@@ -183,7 +174,7 @@ const AppointmentsList = () => {
                   <td className="p-3 text-black">{appt.duration}</td>
                   <td className="p-3 text-black">{new Date(appt.startTime).toLocaleDateString()}</td>
                   <td className="p-3 text-black">{new Date(appt.startTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</td>
-                  <td className="p-3 text-black">{appt.status}</td>
+                  <td className="p-3 text-black">{appt.status || "N/A"}</td>
                   <td className="p-3 text-black">
                     <select
                       value={appt.paymentStatus}

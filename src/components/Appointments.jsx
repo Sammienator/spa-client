@@ -7,36 +7,40 @@ import { FaClock } from "react-icons/fa";
 const Appointments = () => {
   const [appointments, setAppointments] = useState([]);
   const [clients, setClients] = useState([]);
-  // eslint-disable-next-line no-unused-vars
-  const [loading, setLoading] = useState(true); // Suppress ESLint warning for unused 'loading'
+  const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
   const [formData, setFormData] = useState({ clientId: "", treatment: "", duration: "", startTime: "", paymentStatus: "Unpaid" });
   const [searchQuery, setSearchQuery] = useState("");
+
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:10000";
 
   const treatments = ["Hot Stone Massage", "Deep Tissue Massage", "Aromatherapy Massage", "Facial"];
   const durations = [30, 60, 90, 120];
 
   const fetchClients = useCallback(async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/clients", { params: { search: searchQuery } });
+      const response = await axios.get(`${API_URL}/clients`, { params: { search: searchQuery } });
       setClients(response.data);
     } catch (error) {
       console.error("Error fetching clients:", error);
+      setClients([]); // Fallback if endpoint not implemented
     }
-  }, [searchQuery]);
+  }, [searchQuery, API_URL]);
 
   const fetchAppointments = useCallback(async () => {
     try {
       const start = new Date(selectedDate).setHours(0, 0, 0, 0);
       const end = new Date(selectedDate).setHours(23, 59, 59, 999);
-      const response = await axios.get("http://localhost:5000/api/appointments", {
+      const response = await axios.get(`${API_URL}/appointments`, {
         params: { startDate: new Date(start).toISOString(), endDate: new Date(end).toISOString() },
       });
       setAppointments(response.data);
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching appointments:", error);
+      setLoading(false);
     }
-  }, [selectedDate]);
+  }, [selectedDate, API_URL]);
 
   useEffect(() => {
     AOS.init({ duration: 700 });
@@ -61,7 +65,7 @@ const Appointments = () => {
     const endTime = new Date(new Date(startTime).getTime() + parseInt(formData.duration) * 60000).toISOString();
 
     try {
-      const response = await axios.get("http://localhost:5000/api/appointments", {
+      const response = await axios.get(`${API_URL}/appointments`, {
         params: {
           startDate: `${selectedDate}T00:00:00`,
           endDate: `${selectedDate}T23:59:59`,
@@ -73,15 +77,15 @@ const Appointments = () => {
         const apptStart = new Date(appt.startTime).toISOString();
         const apptEnd = new Date(new Date(apptStart).getTime() + appt.duration * 60000).toISOString();
         return (
-          (startTime < apptEnd && endTime > apptStart) && // Overlap check
-          appt.status !== "Cancelled" // Ignore cancelled appointments
+          (startTime < apptEnd && endTime > apptStart) &&
+          appt.status !== "Cancelled"
         );
       });
 
-      return !!conflict; // Return true if there’s a conflict
+      return !!conflict;
     } catch (error) {
       console.error("Error checking time conflict:", error);
-      return true; // Assume conflict to prevent booking on error
+      return true; // Assume conflict on error
     }
   };
 
@@ -95,12 +99,12 @@ const Appointments = () => {
 
     try {
       const startTime = new Date(`${selectedDate}T${formData.startTime}:00`).toISOString();
-      await axios.post("http://localhost:5000/api/appointments", {
+      await axios.post(`${API_URL}/appointments`, {
         clientId: formData.clientId,
         treatment: formData.treatment,
         duration: parseInt(formData.duration),
         startTime,
-        paymentStatus: formData.paymentStatus, // Include payment status
+        paymentStatus: formData.paymentStatus,
       });
       alert("Appointment booked!");
       fetchAppointments();
@@ -110,10 +114,8 @@ const Appointments = () => {
     }
   };
 
-  // Define working hours (8 AM, 10 AM, 12 PM, 2 PM, 4 PM, 6 PM, 8 PM)
   const workingHours = ["08:00", "10:00", "12:00", "14:00", "16:00", "18:00", "20:00"];
 
-  // Get available time slots (exclude booked slots)
   const getAvailableTimeSlots = () => {
     const bookedSlots = new Set();
     appointments.forEach((appt) => {
@@ -138,8 +140,6 @@ const Appointments = () => {
         />
       </div>
       <h2 className="text-xl text-black mb-6 text-center font-belleza" data-aos="fade-up">{new Date(selectedDate).toLocaleDateString()}</h2>
-
-      {/* Booking Form */}
       <form onSubmit={handleSubmit} className="bg-white bg-opacity-90 p-6 rounded-lg shadow-lg w-full max-w-md sm:max-w-lg md:max-w-xl font-belleza" data-aos="fade-up">
         <label className="block mt-2 text-black font-semibold">Search Client:</label>
         <input
