@@ -31,47 +31,53 @@ const AddClient = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen text-black relative z-10">
-      <h1 className="text-3xl font-bold mb-6 text-center" data-aos="fade-down">Add New Client</h1>
-      <form onSubmit={handleSubmit} className="bg-white bg-opacity-90 p-6 rounded-lg shadow-lg w-full max-w-md sm:max-w-lg md:max-w-xl" data-aos="fade-up">
-        <label className="block mt-2 text-black font-semibold">Name:</label>
+    <div className="flex flex-col items-center justify-center min-h-screen text-white relative z-10">
+      <h1 className="text-3xl font-bold mb-6 text-center font-belleza" data-aos="fade-down">
+        Add New Client
+      </h1>
+      <form
+        onSubmit={handleSubmit}
+        className="bg-black bg-opacity-90 p-6 rounded-lg shadow-lg w-full max-w-md sm:max-w-lg md:max-w-xl font-belleza"
+        data-aos="fade-up"
+      >
+        <label className="block mt-2 text-white font-semibold">Name:</label>
         <input
           type="text"
           name="name"
           value={formData.name}
           onChange={handleChange}
           required
-          className="w-full p-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 text-black"
+          className="w-full p-2 border rounded-md bg-white text-black focus:outline-none focus:ring-2 focus:ring-gold"
         />
-        <label className="block mt-2 text-black font-semibold">Email:</label>
+        <label className="block mt-2 text-white font-semibold">Email:</label>
         <input
           type="email"
           name="email"
           value={formData.email}
           onChange={handleChange}
           required
-          className="w-full p-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 text-black"
+          className="w-full p-2 border rounded-md bg-white text-black focus:outline-none focus:ring-2 focus:ring-gold"
         />
-        <label className="block mt-2 text-black font-semibold">Phone:</label>
+        <label className="block mt-2 text-white font-semibold">Phone:</label>
         <input
           type="text"
           name="phone"
           value={formData.phone}
           onChange={handleChange}
           required
-          className="w-full p-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 text-black"
+          className="w-full p-2 border rounded-md bg-white text-black focus:outline-none focus:ring-2 focus:ring-gold"
         />
-        <label className="block mt-2 text-black font-semibold">Areas of Concern:</label>
+        <label className="block mt-2 text-white font-semibold">Areas of Concern:</label>
         <textarea
           name="areasOfConcern"
           value={formData.areasOfConcern}
           onChange={handleChange}
-          className="w-full p-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 text-black"
+          className="w-full p-2 border rounded-md bg-white text-black focus:outline-none focus:ring-2 focus:ring-gold"
           rows="3"
         />
         <button
           type="submit"
-          className="mt-4 w-full bg-gold text-black py-2 rounded-lg hover:bg-white flex items-center justify-center space-x-2 transition duration-300"
+          className="mt-4 w-full bg-gold text-black py-2 rounded-lg hover:bg-white flex items-center justify-center space-x-2 transition duration-300 font-belleza"
         >
           <FaUserPlus />
           <span>Add Client</span>
