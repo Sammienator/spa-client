@@ -26,7 +26,10 @@ const AddClient = () => {
       alert("Client added successfully!");
       navigate("/appointments");
     } catch (error) {
-      alert("Failed to add client: " + error.response?.data?.message || error.message);
+      const message = error.response?.status === 400 && error.response?.data?.message === "Email already exists"
+        ? "Email already exists. Please use a different email."
+        : "Failed to add client: " + (error.response?.data?.message || error.message);
+      alert(message);
     }
   };
 

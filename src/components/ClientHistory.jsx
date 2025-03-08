@@ -52,7 +52,7 @@ const ClientHistory = () => {
       setClient({ ...client, areasOfConcern: "" });
       alert("Areas of Concern deleted.");
     } catch (error) {
-      alert("Failed to delete: " + error.response?.data?.message || error.message);
+      alert("Failed to delete: " + (error.response?.data?.message || error.message));
     }
   };
 
@@ -64,7 +64,7 @@ const ClientHistory = () => {
       setNewConcern("");
       alert("Areas of Concern updated.");
     } catch (error) {
-      alert("Failed to update: " + error.response?.data?.message || error.message);
+      alert("Failed to update: " + (error.response?.data?.message || error.message));
     }
   };
 
@@ -103,7 +103,6 @@ const ClientHistory = () => {
           <p className="text-white text-center">Client not found.</p>
         ) : (
           <>
-            {/* Client Info Section */}
             <div className="mb-6">
               <h2 className="text-xl text-gold font-semibold">Client: {client.name}</h2>
               <p className="text-white">Email: {client.email}</p>
@@ -138,7 +137,6 @@ const ClientHistory = () => {
                 </form>
               </div>
             </div>
-            {/* History Section */}
             {clientHistory.length > 0 ? (
               <table className="w-full text-left border-collapse">
                 <thead>

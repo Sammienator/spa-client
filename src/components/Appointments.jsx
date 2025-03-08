@@ -113,7 +113,7 @@ const Appointments = () => {
       fetchAppointments();
       setFormData({ clientId: "", treatment: "", duration: "", startTime: "", paymentStatus: "Unpaid" });
     } catch (error) {
-      alert("Failed to book: " + error.response?.data?.message || error.message);
+      alert("Failed to book appointment: " + (error.response?.data?.message || error.message));
     }
   };
 

@@ -19,8 +19,8 @@ const AppointmentsList = () => {
       setAppointments(response.data);
       setError(null);
     } catch (error) {
-      console.error("Error fetching appointments:", error.response?.data || error.message);
-      setError("Failed to load appointments.");
+      console.error("Error fetching appointments:", error);
+      setError("Failed to load appointments: " + (error.response?.data?.message || error.message));
     } finally {
       setLoading(false);
     }
@@ -34,9 +34,9 @@ const AppointmentsList = () => {
   const handlePaymentUpdate = async (id, newPaymentStatus) => {
     try {
       await axios.put(`${API_URL}/appointments/${id}`, { paymentStatus: newPaymentStatus });
-      fetchAppointments(); // Refresh list
+      fetchAppointments();
     } catch (error) {
-      alert("Failed to update payment status: " + error.response?.data?.message || error.message);
+      alert("Failed to update payment status: " + (error.response?.data?.message || error.message));
     }
   };
 
