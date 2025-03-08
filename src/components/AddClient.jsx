@@ -71,7 +71,7 @@ const AddClient = () => {
         />
         <button
           type="submit"
-          className="mt-4 w-full bg-green-500 text-black py-2 rounded-lg hover:bg-green-700 flex items-center justify-center space-x-2 transition duration-300"
+          className="mt-4 w-full bg-gold text-black py-2 rounded-lg hover:bg-white flex items-center justify-center space-x-2 transition duration-300"
         >
           <FaUserPlus />
           <span>Add Client</span>

@@ -2,58 +2,45 @@ import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import { FaCalendarAlt, FaUser, FaDollarSign } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { FaFilter } from "react-icons/fa";
 
 const AppointmentsList = () => {
   const [appointments, setAppointments] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState({
+    clientName: "",
+    paymentStatus: "",
+    treatment: "",
+  });
   const [showFilters, setShowFilters] = useState(false);
-  const [date, setDate] = useState("");
-  const [paymentStatus, setPaymentStatus] = useState("");
-  const [clientName, setClientName] = useState("");
+  const [loading, setLoading] = useState(true); // Added loading state
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
 
-  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:10000"; // Render backend
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:10000";
 
   const fetchAppointments = useCallback(async () => {
+    setLoading(true); // Start loading
     try {
-      const params = {};
-      if (clientName) params.clientName = clientName;
-      if (paymentStatus) params.paymentStatus = paymentStatus;
-      console.log("Fetching appointments with params:", params);
-      const response = await axios.get(`${API_URL}/appointments`, { params });
-      console.log("Appointments received:", response.data);
+      const response = await axios.get(`${API_URL}/appointments`, { params: filters });
       setAppointments(response.data);
-      setError(null);
-      setLoading(false);
     } catch (error) {
-      console.error("Error fetching appointments:", error.response?.data || error.message);
-      setError("Failed to load appointments. Check server connection or filters.");
-      setLoading(false);
+      console.error("Error fetching appointments:", error);
+      setError("Failed to load appointments.");
+    } finally {
+      setLoading(false); // Stop loading
     }
-  }, [clientName, paymentStatus, API_URL]);
+  }, [API_URL, filters]);
 
-  const handleDateChange = (e) => {
-    setDate(e.target.value);
+  useEffect(() => {
+    AOS.init({ duration: 1000 });
+    fetchAppointments();
+  }, [fetchAppointments]);
+
+  const handleFilterChange = (e) => {
+    setFilters({ ...filters, [e.target.name]: e.target.value });
   };
 
-  const handlePaymentStatusChange = (e) => {
-    setPaymentStatus(e.target.value);
-  };
-
-  const handleClientNameChange = (e) => {
-    setClientName(e.target.value);
-  };
-
-  const handlePaymentUpdate = async (id, newPaymentStatus) => {
-    try {
-      await axios.put(`${API_URL}/appointments/${id}`, { paymentStatus: newPaymentStatus });
-      fetchAppointments();
-    } catch (error) {
-      alert("Failed to update payment status: " + error.response?.data?.message || error.message);
-    }
+  const toggleFilters = () => {
+    setShowFilters(!showFilters);
   };
 
   const getRowColor = (paymentStatus, startTime) => {
@@ -62,134 +49,108 @@ const AppointmentsList = () => {
     today.setHours(0, 0, 0, 0);
 
     if (apptDate < today) {
-      return "bg-gray-100 hover:bg-gray-200";
+      return "bg-gray-800 hover:bg-gray-700 text-white";
     }
     switch (paymentStatus) {
       case "Paid":
-        return "bg-green-100 hover:bg-green-200";
+        return "bg-gold hover:bg-white text-black";
       case "Unpaid":
-        return "bg-red-100 hover:bg-red-200";
+        return "bg-black hover:bg-gray-800 text-white";
       default:
-        return "bg-yellow-100 hover:bg-yellow-200";
+        return "bg-white hover:bg-gold text-black";
     }
   };
 
-  const toggleFilters = () => {
-    setShowFilters(!showFilters);
-  };
-
-  const applyFilters = () => {
-    fetchAppointments();
-    setShowFilters(false);
-  };
-
-  useEffect(() => {
-    AOS.init({ duration: 700 });
-    fetchAppointments();
-  }, [fetchAppointments]);
-
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen text-black relative z-10">
-      <h1 className="text-3xl font-bold mb-6 text-center font-belleza" data-aos="fade-down">Appointments List</h1>
+    <div className="flex flex-col items-center justify-center min-h-screen text-white relative z-10">
+      <h1 className="text-3xl font-bold mb-6 text-center font-belleza" data-aos="fade-down">
+        Appointments List
+      </h1>
       <button
         onClick={toggleFilters}
-        className="mb-6 px-6 py-2 bg-blue-500 text-black rounded-lg hover:bg-blue-700 transition duration-300 font-belleza"
+        className="mb-6 px-6 py-2 bg-gold text-black rounded-lg hover:bg-white transition duration-300 font-belleza flex items-center space-x-2"
+        data-aos="fade-up"
       >
-        {showFilters ? "Hide Filters" : "Show Filters"}
+        <FaFilter />
+        <span>Toggle Filters</span>
       </button>
       {showFilters && (
-        <div className="w-full max-w-5xl mb-6 bg-white bg-opacity-90 p-6 rounded-lg shadow-lg font-belleza" data-aos="fade-up">
-          <h2 className="text-xl font-semibold mb-4 text-black text-center">Filter Appointments</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="flex items-center space-x-2">
-              <FaUser className="text-purple-500" />
-              <div>
-                <label className="block text-black font-semibold">Client Name:</label>
-                <input
-                  type="text"
-                  value={clientName}
-                  onChange={handleClientNameChange}
-                  placeholder="Search by name..."
-                  className="w-full p-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 text-black font-belleza"
-                />
-              </div>
-            </div>
-            <div className="flex items-center space-x-2">
-              <FaDollarSign className="text-green-500" />
-              <div>
-                <label className="block text-black font-semibold">Payment Status:</label>
-                <select
-                  value={paymentStatus}
-                  onChange={handlePaymentStatusChange}
-                  className="w-full p-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 text-black font-belleza"
-                >
-                  <option value="">All</option>
-                  <option value="Paid">Paid</option>
-                  <option value="Unpaid">Unpaid</option>
-                  <option value="Pending">Pending</option>
-                </select>
-              </div>
-            </div>
+        <div
+          className="bg-black bg-opacity-90 p-6 rounded-lg shadow-lg w-full max-w-md mb-6 font-belleza"
+          data-aos="fade-up"
+        >
+          {error && <p className="text-red-500 mb-4">{error}</p>}
+          <div className="mb-4">
+            <label className="block text-white mb-2">Client Name</label>
+            <input
+              type="text"
+              name="clientName"
+              value={filters.clientName}
+              onChange={handleFilterChange}
+              className="w-full p-2 border rounded-md bg-white text-black focus:outline-none focus:ring-2 focus:ring-gold"
+            />
           </div>
-          <button
-            onClick={applyFilters}
-            className="mt-4 w-full sm:w-auto px-6 py-2 bg-blue-500 text-black rounded-lg hover:bg-blue-700 flex items-center justify-center space-x-2 transition duration-300 font-belleza"
-          >
-            <FaCalendarAlt />
-            <span>Apply Filters</span>
-          </button>
+          <div className="mb-4">
+            <label className="block text-white mb-2">Payment Status</label>
+            <select
+              name="paymentStatus"
+              value={filters.paymentStatus}
+              onChange={handleFilterChange}
+              className="w-full p-2 border rounded-md bg-white text-black focus:outline-none focus:ring-2 focus:ring-gold"
+            >
+              <option value="">All</option>
+              <option value="Paid">Paid</option>
+              <option value="Unpaid">Unpaid</option>
+            </select>
+          </div>
+          <div className="mb-4">
+            <label className="block text-white mb-2">Treatment</label>
+            <input
+              type="text"
+              name="treatment"
+              value={filters.treatment}
+              onChange={handleFilterChange}
+              className="w-full p-2 border rounded-md bg-white text-black focus:outline-none focus:ring-2 focus:ring-gold"
+            />
+          </div>
         </div>
       )}
-      <div className="w-full max-w-5xl sm:max-w-6xl md:max-w-7xl bg-white bg-opacity-90 p-6 rounded-lg shadow-lg font-belleza" data-aos="fade-up">
-        {error ? (
-          <p className="text-black text-center">{error}</p>
-        ) : loading ? (
-          <p className="text-black text-center">Loading...</p>
-        ) : appointments.length === 0 ? (
-          <p className="text-black text-center">No appointments found for the selected filters.</p>
-        ) : (
-          <table className="w-full text-left border-collapse">
+      <div
+        className="w-full max-w-4xl sm:max-w-5xl md:max-w-6xl bg-black bg-opacity-90 p-6 rounded-lg shadow-lg font-belleza"
+        data-aos="fade-up"
+      >
+        {loading ? (
+          <p className="text-white text-center">Loading appointments...</p> // Show loading
+        ) : error ? (
+          <p className="text-red-500 text-center">{error}</p>
+        ) : appointments.length > 0 ? (
+          <table className="w-full text-left">
             <thead>
-              <tr className="bg-gray-200">
-                <th className="p-3">Client Name</th>
-                <th className="p-3">Email</th>
-                <th className="p-3">Phone</th>
-                <th className="p-3">Treatment</th>
-                <th className="p-3">Duration (mins)</th>
-                <th className="p-3">Date</th>
-                <th className="p-3">Time</th>
-                <th className="p-3">Status</th>
-                <th className="p-3">Payment Status</th>
+              <tr className="text-gold">
+                <th className="p-2">Client</th>
+                <th className="p-2">Treatment</th>
+                <th className="p-2">Date & Time</th>
+                <th className="p-2">Duration</th>
+                <th className="p-2">Payment Status</th>
               </tr>
             </thead>
             <tbody>
               {appointments.map((appt) => (
-                <tr key={appt._id} className={`${getRowColor(appt.paymentStatus, appt.startTime)} border-b hover:bg-opacity-80`}>
-                  <td className="p-3 text-black cursor-pointer" onClick={() => navigate(`/client-history/${appt.clientId._id}`)}>
-                    {appt.clientId.name}
-                  </td>
-                  <td className="p-3 text-black">{appt.clientId.email}</td>
-                  <td className="p-3 text-black">{appt.clientId.phone || "N/A"}</td>
-                  <td className="p-3 text-black">{appt.treatment}</td>
-                  <td className="p-3 text-black">{appt.duration}</td>
-                  <td className="p-3 text-black">{new Date(appt.startTime).toLocaleDateString()}</td>
-                  <td className="p-3 text-black">{new Date(appt.startTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</td>
-                  <td className="p-3 text-black">{appt.status || "N/A"}</td>
-                  <td className="p-3 text-black">
-                    <select
-                      value={appt.paymentStatus}
-                      onChange={(e) => handlePaymentUpdate(appt._id, e.target.value)}
-                      className="w-full p-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-black font-belleza"
-                    >
-                      <option value="Unpaid">Unpaid</option>
-                      <option value="Paid">Paid</option>
-                      <option value="Pending">Pending</option>
-                    </select>
-                  </td>
+                <tr
+                  key={appt._id}
+                  className={`${getRowColor(appt.paymentStatus, appt.startTime)} transition duration-300`}
+                >
+                  <td className="p-2">{appt.clientId.name}</td>
+                  <td className="p-2">{appt.treatment}</td>
+                  <td className="p-2">{new Date(appt.startTime).toLocaleString()}</td>
+                  <td className="p-2">{appt.duration} mins</td>
+                  <td className="p-2">{appt.paymentStatus}</td>
                 </tr>
               ))}
             </tbody>
           </table>
+        ) : (
+          <p className="text-white text-center">No appointments found.</p>
         )}
       </div>
     </div>

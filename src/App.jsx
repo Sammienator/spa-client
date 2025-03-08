@@ -20,7 +20,7 @@ const BackgroundWrapper = ({ children }) => {
 
   return (
     <div
-      className="min-h-screen bg-cover bg-center bg-no-repeat relative font-belleza"
+      className= "min-h-screen bg-cover bg-center bg-no-repeat relative font-belleza text-white"
       style={{ backgroundImage: `url(${backgroundImage})` }}
     >
       <div className="absolute inset-0 bg-black bg-opacity-50 z-0" />

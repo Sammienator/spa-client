@@ -2,3 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --gold: #E5B80B;
+}
+
+/* Custom color classes */
+.text-gold {
+  color: var(--gold);
+}
+
+.bg-gold {
+  background-color: var(--gold);
+}
+
+.focus\:ring-gold:focus {
+  --tw-ring-color: var(--gold);
+}
+
+/* Hover states */
+.hover\:bg-gold:hover {
+  background-color: var(--gold);
+}
+
+.hover\:text-gold:hover {
+  color: var(--gold);
+}
