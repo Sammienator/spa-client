@@ -16,7 +16,29 @@ const AppointmentsList = () => {
     setLoading(true);
     try {
       const response = await axios.get(`${API_URL}/appointments`);
-      setAppointments(response.data);
+      // Sort appointments: today first, then future, then past
+      const sortedAppointments = response.data.sort((a, b) => {
+        const dateA = new Date(a.startTime);
+        const dateB = new Date(b.startTime);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const isPastA = dateA < today;
+        const isPastB = dateB < today;
+        const isTodayA = dateA.toDateString() === today.toDateString();
+        const isTodayB = dateB.toDateString() === today.toDateString();
+
+        // Today’s bookings first
+        if (isTodayA && !isTodayB) return -1;
+        if (!isTodayA && isTodayB) return 1;
+        // Future bookings next (earliest first)
+        if (!isPastA && !isPastB) return dateA - dateB;
+        // Past bookings last (most recent first)
+        if (isPastA && isPastB) return dateB - dateA;
+        // Past vs non-past
+        return isPastA ? 1 : -1;
+      });
+      setAppointments(sortedAppointments);
       setError(null);
     } catch (error) {
       console.error("Error fetching appointments:", error);
@@ -46,7 +68,7 @@ const AppointmentsList = () => {
     today.setHours(0, 0, 0, 0);
 
     if (apptDate < today) {
-      return "bg-gray-800 hover:bg-gray-700 text-white";
+      return "bg-gray-800 hover:bg-gray-700 text-white"; // Past bookings
     }
     switch (paymentStatus) {
       case "Paid":
@@ -56,12 +78,19 @@ const AppointmentsList = () => {
       case "Pending":
         return "bg-[#FFFF00] hover:bg-[#CCCC00] text-black"; // Yellow
       default:
-        return "bg-white hover:bg-gold text-black";
+        return "bg-white hover:bg-[#E5B80B] text-black"; // Default with gold hover
     }
   };
 
+  const isPastBooking = (startTime) => {
+    const apptDate = new Date(startTime);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return apptDate < today;
+  };
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen text-white relative z-10">
+    <div className="flex flex-col items-center justify-center min-h-screen text-[#E5B80B] relative z-10">
       <h1 className="text-3xl font-bold mb-6 text-center font-belleza" data-aos="fade-down">
         Appointments List
       </h1>
@@ -70,15 +99,15 @@ const AppointmentsList = () => {
         data-aos="fade-up"
       >
         {loading ? (
-          <p className="text-white text-center">Loading appointments...</p>
+          <p className="text-[#E5B80B] text-center">Loading appointments...</p>
         ) : error ? (
           <p className="text-red-500 text-center">{error}</p>
         ) : appointments.length === 0 ? (
-          <p className="text-white text-center">No appointments found.</p>
+          <p className="text-[#E5B80B] text-center">No appointments found.</p>
         ) : (
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="text-gold">
+              <tr className="text-[#E5B80B]">
                 <th className="p-3">Client Name</th>
                 <th className="p-3">Phone</th>
                 <th className="p-3">Date</th>
@@ -106,15 +135,19 @@ const AppointmentsList = () => {
                   </td>
                   <td className="p-3">{appt.treatment}</td>
                   <td className="p-3">
-                    <select
-                      value={appt.paymentStatus}
-                      onChange={(e) => handlePaymentUpdate(appt._id, e.target.value)}
-                      className="w-full p-2 border rounded-md bg-white text-black focus:outline-none focus:ring-2 focus:ring-gold font-belleza"
-                    >
-                      <option value="Unpaid">Unpaid</option>
-                      <option value="Paid">Paid</option>
-                      <option value="Pending">Pending</option>
-                    </select>
+                    {isPastBooking(appt.startTime) ? (
+                      <span className="p-2">{appt.paymentStatus}</span>
+                    ) : (
+                      <select
+                        value={appt.paymentStatus}
+                        onChange={(e) => handlePaymentUpdate(appt._id, e.target.value)}
+                        className="w-full p-2 border rounded-md bg-white text-black focus:outline-none focus:ring-2 focus:ring-[#E5B80B] font-belleza"
+                      >
+                        <option value="Unpaid">Unpaid</option>
+                        <option value="Paid">Paid</option>
+                        <option value="Pending">Pending</option>
+                      </select>
+                    )}
                   </td>
                 </tr>
               ))}
