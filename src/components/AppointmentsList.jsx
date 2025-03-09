@@ -50,11 +50,13 @@ const AppointmentsList = () => {
     }
     switch (paymentStatus) {
       case "Paid":
-        return "bg-gold hover:bg-white text-black";
+        return "bg-[#00FF00] hover:bg-[#00CC00] text-black"; // Green
       case "Unpaid":
-        return "bg-black hover:bg-gray-800 text-white";
+        return "bg-[#FFCCCC] hover:bg-[#FF9999] text-black"; // Light Red
+      case "Pending":
+        return "bg-[#FFFF00] hover:bg-[#CCCC00] text-black"; // Yellow
       default:
-        return "bg-white hover:bg-gold text-black"; // Pending or unspecified
+        return "bg-white hover:bg-gold text-black";
     }
   };
 
@@ -64,7 +66,7 @@ const AppointmentsList = () => {
         Appointments List
       </h1>
       <div
-        className="w-full max-w-5xl sm:max-w-6xl md:max-w-7xl bg-black bg-opacity-90 p-6 rounded-lg shadow-lg font-belleza"
+        className="w-full max-w-5xl sm:max-w-6xl md:max-w-7xl bg-black bg-opacity-90 p-6 rounded-lg shadow-lg font-belleza overflow-x-auto"
         data-aos="fade-up"
       >
         {loading ? (
@@ -81,6 +83,7 @@ const AppointmentsList = () => {
                 <th className="p-3">Phone</th>
                 <th className="p-3">Date</th>
                 <th className="p-3">Time</th>
+                <th className="p-3">Treatment</th>
                 <th className="p-3">Payment Status</th>
               </tr>
             </thead>
@@ -101,6 +104,7 @@ const AppointmentsList = () => {
                   <td className="p-3">
                     {new Date(appt.startTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                   </td>
+                  <td className="p-3">{appt.treatment}</td>
                   <td className="p-3">
                     <select
                       value={appt.paymentStatus}

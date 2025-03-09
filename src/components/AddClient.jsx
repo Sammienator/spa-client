@@ -35,15 +35,16 @@ const AddClient = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen text-white relative z-10">
-      <h1 className="text-3xl font-bold mb-6 text-center font-belleza" data-aos="fade-down">
-        Add New Client
+      <h1 className="text-3xl font-bold mb-6 text-center font-belleza flex items-center justify-center space-x-2" data-aos="fade-down">
+        <FaUserPlus />
+        <span>Add New Client</span>
       </h1>
       <form
         onSubmit={handleSubmit}
         className="bg-black bg-opacity-90 p-6 rounded-lg shadow-lg w-full max-w-md sm:max-w-lg md:max-w-xl font-belleza"
         data-aos="fade-up"
       >
-        <label className="block mt-2 text-white font-semibold">Name:</label>
+        <label className="block mt-2 text-white font-semibold" data-aos="fade-left">Name:</label>
         <input
           type="text"
           name="name"
@@ -52,7 +53,7 @@ const AddClient = () => {
           required
           className="w-full p-2 border rounded-md bg-white text-black focus:outline-none focus:ring-2 focus:ring-gold"
         />
-        <label className="block mt-2 text-white font-semibold">Email:</label>
+        <label className="block mt-2 text-white font-semibold" data-aos="fade-left">Email:</label>
         <input
           type="email"
           name="email"
@@ -61,7 +62,7 @@ const AddClient = () => {
           required
           className="w-full p-2 border rounded-md bg-white text-black focus:outline-none focus:ring-2 focus:ring-gold"
         />
-        <label className="block mt-2 text-white font-semibold">Phone:</label>
+        <label className="block mt-2 text-white font-semibold" data-aos="fade-left">Phone:</label>
         <input
           type="text"
           name="phone"
@@ -70,7 +71,7 @@ const AddClient = () => {
           required
           className="w-full p-2 border rounded-md bg-white text-black focus:outline-none focus:ring-2 focus:ring-gold"
         />
-        <label className="block mt-2 text-white font-semibold">Areas of Concern:</label>
+        <label className="block mt-2 text-white font-semibold" data-aos="fade-left">Areas of Concern:</label>
         <textarea
           name="areasOfConcern"
           value={formData.areasOfConcern}
