@@ -85,34 +85,33 @@ const AppointmentsList = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white relative z-10 font-sans">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white relative z-10 font-belleza">
       <h1
-        className="text-4xl font-bold mb-8 text-center text-[#FFD700] tracking-wide"
-        style={{ fontFamily: "'Playfair Display', serif" }}
+        className="text-4xl font-bold mb-8 text-center text-[#FFD700] tracking-wide font-belleza"
         data-aos="fade-down"
       >
         Appointments List
       </h1>
       <div
-        className="w-full max-w-6xl bg-white bg-opacity-10 backdrop-blur-lg p-8 rounded-xl shadow-2xl font-sans overflow-x-auto border border-gray-700"
+        className="w-full max-w-6xl bg-white bg-opacity-10 backdrop-blur-lg p-8 rounded-xl shadow-2xl font-belleza overflow-x-auto border border-gray-700"
         data-aos="fade-up"
       >
         {loading ? (
-          <p className="text-[#FFD700] text-center text-lg">Loading appointments...</p>
+          <p className="text-[#FFD700] text-center text-lg font-belleza">Loading appointments...</p>
         ) : error ? (
-          <p className="text-red-400 text-center text-lg">{error}</p>
+          <p className="text-red-400 text-center text-lg font-belleza">{error}</p>
         ) : appointments.length === 0 ? (
-          <p className="text-[#FFD700] text-center text-lg">No appointments found.</p>
+          <p className="text-[#FFD700] text-center text-lg font-belleza">No appointments found.</p>
         ) : (
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="text-[#FFD700] border-b border-gray-600">
-                <th className="p-4 text-lg font-semibold">Client Name</th>
-                <th className="p-4 text-lg font-semibold">Phone</th>
-                <th className="p-4 text-lg font-semibold">Date</th>
-                <th className="p-4 text-lg font-semibold">Time</th>
-                <th className="p-4 text-lg font-semibold">Treatment</th>
-                <th className="p-4 text-lg font-semibold">Payment Status</th>
+                <th className="p-4 text-lg font-semibold font-belleza">Client Name</th>
+                <th className="p-4 text-lg font-semibold font-belleza">Phone</th>
+                <th className="p-4 text-lg font-semibold font-belleza">Date</th>
+                <th className="p-4 text-lg font-semibold font-belleza">Time</th>
+                <th className="p-4 text-lg font-semibold font-belleza">Treatment</th>
+                <th className="p-4 text-lg font-semibold font-belleza">Payment Status</th>
               </tr>
             </thead>
             <tbody>
@@ -122,25 +121,25 @@ const AppointmentsList = () => {
                   className={`${getRowColor(appt.paymentStatus, appt.startTime)} border-b border-gray-200 transition-colors duration-300`}
                 >
                   <td
-                    className="p-4 cursor-pointer hover:text-[#FFD700] transition-colors duration-200"
+                    className="p-4 cursor-pointer hover:text-[#FFD700] transition-colors duration-200 font-belleza"
                     onClick={() => navigate(`/client-history/${appt.clientId._id}`)}
                   >
                     {appt.clientId.name}
                   </td>
-                  <td className="p-4">{appt.clientId.phone || "N/A"}</td>
-                  <td className="p-4">{new Date(appt.startTime).toLocaleDateString()}</td>
-                  <td className="p-4">
+                  <td className="p-4 font-belleza">{appt.clientId.phone || "N/A"}</td>
+                  <td className="p-4 font-belleza">{new Date(appt.startTime).toLocaleDateString()}</td>
+                  <td className="p-4 font-belleza">
                     {new Date(appt.startTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                   </td>
-                  <td className="p-4">{appt.treatment}</td>
-                  <td className="p-4">
+                  <td className="p-4 font-belleza">{appt.treatment}</td>
+                  <td className="p-4 font-belleza">
                     {isPastBooking(appt.startTime) ? (
-                      <span className="p-2 font-medium">{appt.paymentStatus}</span>
+                      <span className="p-2 font-medium font-belleza">{appt.paymentStatus}</span>
                     ) : (
                       <select
                         value={appt.paymentStatus}
                         onChange={(e) => handlePaymentUpdate(appt._id, e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded-md bg-white text-black focus:outline-none focus:ring-2 focus:ring-[#FFD700] transition-all duration-200"
+                        className="w-full p-2 border border-gray-300 rounded-md bg-white text-black focus:outline-none focus:ring-2 focus:ring-[#FFD700] transition-all duration-200 font-belleza"
                       >
                         <option value="Unpaid">Unpaid</option>
                         <option value="Paid">Paid</option>
