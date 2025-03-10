@@ -16,7 +16,6 @@ const AppointmentsList = () => {
     setLoading(true);
     try {
       const response = await axios.get(`${API_URL}/appointments`);
-      // Sort appointments: today first, then future, then past
       const sortedAppointments = response.data.sort((a, b) => {
         const dateA = new Date(a.startTime);
         const dateB = new Date(b.startTime);
@@ -28,14 +27,10 @@ const AppointmentsList = () => {
         const isTodayA = dateA.toDateString() === today.toDateString();
         const isTodayB = dateB.toDateString() === today.toDateString();
 
-        // Today’s bookings first
         if (isTodayA && !isTodayB) return -1;
         if (!isTodayA && isTodayB) return 1;
-        // Future bookings next (earliest first)
         if (!isPastA && !isPastB) return dateA - dateB;
-        // Past bookings last (most recent first)
         if (isPastA && isPastB) return dateB - dateA;
-        // Past vs non-past
         return isPastA ? 1 : -1;
       });
       setAppointments(sortedAppointments);
@@ -68,17 +63,17 @@ const AppointmentsList = () => {
     today.setHours(0, 0, 0, 0);
 
     if (apptDate < today) {
-      return "bg-gray-800 hover:bg-gray-700 text-white"; // Past bookings
+      return "bg-gray-900 hover:bg-gray-800 text-gray-400"; // Past bookings in a muted gray tone
     }
     switch (paymentStatus) {
       case "Paid":
-        return "bg-[#00FF00] hover:bg-[#00CC00] text-black"; // Green
+        return "bg-white hover:bg-gray-100 text-black"; // Clean white for paid
       case "Unpaid":
-        return "bg-[#FFCCCC] hover:bg-[#FF9999] text-black"; // Light Red
+        return "bg-black hover:bg-gray-900 text-white"; // Black for unpaid with white text
       case "Pending":
-        return "bg-[#FFFF00] hover:bg-[#CCCC00] text-black"; // Yellow
+        return "bg-[#FFD700] hover:bg-[#E5B80B] text-black"; // Gold for pending
       default:
-        return "bg-white hover:bg-[#E5B80B] text-black"; // Default with gold hover
+        return "bg-white hover:bg-gray-100 text-black"; // Default white
     }
   };
 
@@ -90,58 +85,62 @@ const AppointmentsList = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen text-[#E5B80B] relative z-10">
-      <h1 className="text-3xl font-bold mb-6 text-center font-belleza" data-aos="fade-down">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white relative z-10 font-sans">
+      <h1
+        className="text-4xl font-bold mb-8 text-center text-[#FFD700] tracking-wide"
+        style={{ fontFamily: "'Playfair Display', serif" }}
+        data-aos="fade-down"
+      >
         Appointments List
       </h1>
       <div
-        className="w-full max-w-5xl sm:max-w-6xl md:max-w-7xl bg-black bg-opacity-90 p-6 rounded-lg shadow-lg font-belleza overflow-x-auto"
+        className="w-full max-w-6xl bg-white bg-opacity-10 backdrop-blur-lg p-8 rounded-xl shadow-2xl font-sans overflow-x-auto border border-gray-700"
         data-aos="fade-up"
       >
         {loading ? (
-          <p className="text-[#E5B80B] text-center">Loading appointments...</p>
+          <p className="text-[#FFD700] text-center text-lg">Loading appointments...</p>
         ) : error ? (
-          <p className="text-red-500 text-center">{error}</p>
+          <p className="text-red-400 text-center text-lg">{error}</p>
         ) : appointments.length === 0 ? (
-          <p className="text-[#E5B80B] text-center">No appointments found.</p>
+          <p className="text-[#FFD700] text-center text-lg">No appointments found.</p>
         ) : (
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="text-[#E5B80B]">
-                <th className="p-3">Client Name</th>
-                <th className="p-3">Phone</th>
-                <th className="p-3">Date</th>
-                <th className="p-3">Time</th>
-                <th className="p-3">Treatment</th>
-                <th className="p-3">Payment Status</th>
+              <tr className="text-[#FFD700] border-b border-gray-600">
+                <th className="p-4 text-lg font-semibold">Client Name</th>
+                <th className="p-4 text-lg font-semibold">Phone</th>
+                <th className="p-4 text-lg font-semibold">Date</th>
+                <th className="p-4 text-lg font-semibold">Time</th>
+                <th className="p-4 text-lg font-semibold">Treatment</th>
+                <th className="p-4 text-lg font-semibold">Payment Status</th>
               </tr>
             </thead>
             <tbody>
               {appointments.map((appt) => (
                 <tr
                   key={appt._id}
-                  className={`${getRowColor(appt.paymentStatus, appt.startTime)} border-b`}
+                  className={`${getRowColor(appt.paymentStatus, appt.startTime)} border-b border-gray-200 transition-colors duration-300`}
                 >
                   <td
-                    className="p-3 cursor-pointer hover:underline"
+                    className="p-4 cursor-pointer hover:text-[#FFD700] transition-colors duration-200"
                     onClick={() => navigate(`/client-history/${appt.clientId._id}`)}
                   >
                     {appt.clientId.name}
                   </td>
-                  <td className="p-3">{appt.clientId.phone || "N/A"}</td>
-                  <td className="p-3">{new Date(appt.startTime).toLocaleDateString()}</td>
-                  <td className="p-3">
+                  <td className="p-4">{appt.clientId.phone || "N/A"}</td>
+                  <td className="p-4">{new Date(appt.startTime).toLocaleDateString()}</td>
+                  <td className="p-4">
                     {new Date(appt.startTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                   </td>
-                  <td className="p-3">{appt.treatment}</td>
-                  <td className="p-3">
+                  <td className="p-4">{appt.treatment}</td>
+                  <td className="p-4">
                     {isPastBooking(appt.startTime) ? (
-                      <span className="p-2">{appt.paymentStatus}</span>
+                      <span className="p-2 font-medium">{appt.paymentStatus}</span>
                     ) : (
                       <select
                         value={appt.paymentStatus}
                         onChange={(e) => handlePaymentUpdate(appt._id, e.target.value)}
-                        className="w-full p-2 border rounded-md bg-white text-black focus:outline-none focus:ring-2 focus:ring-[#E5B80B] font-belleza"
+                        className="w-full p-2 border border-gray-300 rounded-md bg-white text-black focus:outline-none focus:ring-2 focus:ring-[#FFD700] transition-all duration-200"
                       >
                         <option value="Unpaid">Unpaid</option>
                         <option value="Paid">Paid</option>
